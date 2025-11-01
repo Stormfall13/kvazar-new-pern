@@ -1,0 +1,208 @@
+.dop-work-table-container {
+  padding: 20px;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.dop-work-table-container h1 {
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 24px;
+}
+
+/* Заголовок таблицы */
+.table-header-row {
+  display: flex;
+  background: #e8eaed;
+  border: 1px solid #dadce0;
+  border-radius: 4px 4px 0 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header-cell {
+  padding: 12px 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #3c4043;
+  border-right: 1px solid #dadce0;
+  display: flex;
+  align-items: center;
+  background: #f8f9fa;
+}
+
+.header-cell:last-child {
+  border-right: none;
+}
+
+/* Тело таблицы */
+.table-body {
+  border: 1px solid #dadce0;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  background: white;
+}
+
+/* Строки данных */
+.table-row {
+  display: flex;
+  border-bottom: 1px solid #e0e0e0;
+  transition: background-color 0.2s;
+  padding: 7px 0;
+}
+
+.table-row:hover {
+  background-color: #ed9c094f;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+/* Ячейки данных */
+.data-cell {
+  padding: 0 8px;
+  font-size: 14px;
+  color: #3c4043;
+  border-right: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  word-break: break-word;
+  overflow: hidden;
+}
+
+.data-cell:last-child {
+  border-right: none;
+}
+
+/* Ссылки */
+.link {
+  color: #1a73e8;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+/* Состояние пустой таблицы */
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #5f6368;
+  font-size: 16px;
+  background: white;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+}
+
+/* Скролл для горизонтальной прокрутки */
+.dop-work-table-container {
+  overflow-x: auto;
+}
+
+.table-header-row,
+.table-row {
+  min-width: max-content;
+}
+
+/* Фиксированная ширина для некоторых колонок */
+.header-cell,
+.data-cell {
+  flex-shrink: 0;
+}
+
+
+.controls {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search-section, .sort-section {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.search-input {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  min-width: 250px;
+}
+
+.sort-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.sort-order-btn, .reset-btn {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+}
+
+.sort-order-btn:hover, .reset-btn:hover {
+  background: #f5f5f5;
+}
+
+.table-row.highlighted {
+  background-color: #e3f2fd !important;
+  border-left: 3px solid #2196f3;
+}
+
+.header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.filter-wrapper {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.column-filter-input {
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 12px;
+  width: 100%;
+}
+
+.clear-filter-btn {
+  background: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reset-all-btn {
+  background: #ff6b6b;
+  color: white;
+}
+
+/* Подсветка активных фильтров */
+.header-cell:has(.column-filter-input:not(:placeholder-shown)) {
+  background-color: #e8f5e8;
+}
+
+.header-cell.active-filter {
+  background-color: #e8f5e8 !important;
+  border-bottom: 2px solid #4caf50;
+}
