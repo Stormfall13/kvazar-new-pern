@@ -11,6 +11,7 @@ const Header = () => {
             <Navbar/>
             <Link to="/"><img src={home} alt="home" className='link__home'/></Link>
             <Link to="/qa-page">Доп работы</Link>
+            <Link to="/favorites">Избранное</Link>
         </header>
     )
 }

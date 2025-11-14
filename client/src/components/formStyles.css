@@ -1,0 +1,346 @@
+/* Основные стили контейнера */
+.ad__container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f5f7fa;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Кнопка очистки формы */
+.clear__form {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 25px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.2);
+}
+
+.clear__form:hover {
+  background: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+/* Основная форма */
+.form__global {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+/* Группы полей */
+.point__work {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 300px;
+  min-width: 300px;
+  max-width: 100%;
+}
+
+.point__work-utils {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 295px;
+}
+
+.counting__wrapp {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 100%;
+  width: 100%;
+}
+
+/* Метки полей */
+.options__work {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.red__star {
+  color: #e53e3e;
+  margin-left: 2px;
+}
+
+/* Поля ввода */
+.reglament,
+.executor,
+.type__work,
+.amount,
+.type__test,
+.main__input {
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: white;
+  max-width: 295px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.reglament:focus,
+.executor:focus,
+.type__work:focus,
+.amount:focus,
+.type__test:focus,
+.main__input:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+  background: #f7fafc;
+}
+
+.reglament:disabled,
+.executor:disabled,
+.type__work:disabled,
+.amount:disabled,
+.type__test:disabled,
+.main__input:disabled {
+  background: #f7fafc;
+  color: #718096;
+  cursor: not-allowed;
+}
+
+/* Текстовые области */
+.counting {
+  min-height: 120px;
+  padding: 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  transition: all 0.3s ease;
+  background: white;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  line-height: 1.5;
+}
+
+.counting:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+  background: #f7fafc;
+}
+
+/* Обертка для полей с баллами */
+.point__wrapp {
+  display: flex;
+  gap: 10px;
+}
+
+.point__input {
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Контейнер с кнопкой очистки */
+.point__work--has-clear {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.point__work--has-clear .executor-wrapper {
+  position: relative;
+  max-width: 295px;
+}
+
+.point__work--has-clear .executor {
+  padding-right: 45px;
+  width: 100%;
+}
+
+/* Кнопка очистки исполнителя */
+.btn__clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #dc3545;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+}
+
+.btn__clear:hover {
+  background: #c82333;
+}
+
+.btn__clear img {
+  width: 14px;
+  height: 14px;
+  filter: invert(1);
+}
+
+/* Основная кнопка отправки */
+.btn__main {
+  display: block;
+  background: #4299e1;
+  color: white;
+  border: none;
+  padding: 16px 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  box-shadow: 0 2px 8px rgba(66, 153, 225, 0.2);
+  flex: 1 1 100%;
+  width: 100%;
+  text-align: center;
+}
+
+.btn__main:hover {
+  background: #3182ce;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
+}
+
+.btn__main:active {
+  transform: translateY(0);
+}
+
+/* Стили для datalist */
+.reglament[list],
+.executor[list],
+.type__work[list],
+.amount[list],
+.type__test[list],
+.main__input[list] {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23718096' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 12px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .ad__container {
+    padding: 15px;
+  }
+  
+  .form__global {
+    padding: 20px;
+    gap: 16px;
+  }
+  
+  .point__work {
+    flex: 1 1 100%;
+    min-width: auto;
+  }
+  
+  .clear__form {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  
+  .reglament,
+  .executor,
+  .type__work,
+  .amount,
+  .type__test,
+  .main__input,
+  .counting {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .form__global {
+    padding: 16px;
+  }
+  
+  .point__wrapp {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .btn__main {
+    padding: 14px 24px;
+    font-size: 15px;
+  }
+  
+  .point__work-utils {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    max-width: 100%;
+  }
+}
+
+/* Анимации */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form__global {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Стили для состояний валидации */
+.reglament:invalid,
+.executor:invalid,
+.type__work:invalid,
+.amount:invalid,
+.type__test:invalid,
+.counting:invalid {
+  border-color: #fc8181;
+}
+
+.reglament:valid,
+.executor:valid,
+.type__work:valid,
+.amount:valid,
+.type__test:valid,
+.counting:valid {
+  border-color: #48bb78;
+}
+
+/* Улучшенные плейсхолдеры */
+.reglament::placeholder,
+.executor::placeholder,
+.type__work::placeholder,
+.amount::placeholder,
+.type__test::placeholder,
+.main__input::placeholder,
+.counting::placeholder {
+  color: #a0aec0;
+  font-size: 13px;
+}

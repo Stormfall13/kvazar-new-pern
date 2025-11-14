@@ -1,10 +1,10 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
 
-
 const Dop = sequelize.define("DopWorkTable", {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true}, // ID
-    date: {type: DataTypes.DATEONLY, defaultValue: Date.now()},         // Отметка времени
+    date: {type: DataTypes.DATEONLY, defaultValue: Date.now()},         // Отметка даты
+    timeText: {type: DataTypes.STRING},                                 // Отметка времени
     reglament: {type: DataTypes.STRING},                                // Ссылка на регламент
     executor: {type: DataTypes.STRING},                                 // Исполнители
     amount: {type: DataTypes.STRING},                                   // Кол-во доп. работ в реге
@@ -13,6 +13,10 @@ const Dop = sequelize.define("DopWorkTable", {
     recommen: {type: DataTypes.INTEGER, defaultValue: 0},               // Рекомендации
     errors: {type: DataTypes.INTEGER, defaultValue: 0},                 // Ошибки
     critic: {type: DataTypes.INTEGER, defaultValue: 0},                 // Критические ошибки
+    recomenPoint: {type: DataTypes.FLOAT, defaultValue: 0},           // Рекомендации КОЭФФИЦЕНТ
+    errorsPoint: {type: DataTypes.FLOAT, defaultValue: 0},            // Ошибки КОЭФФИЦЕНТ
+    criticPoint: {type: DataTypes.FLOAT, defaultValue: 0},            // Критические ошибки КОЭФФИЦЕНТ
+    generalPoint: {type: DataTypes.FLOAT, defaultValue: 0},           // Общий балл КОЭФФИЦЕНТОВ
     counting: {type: DataTypes.TEXT},                                   // Отчет
     iteration: {type: DataTypes.INTEGER, defaultValue: 0},              // Итерации
     point: {type: DataTypes.FLOAT},                                     // Баллы

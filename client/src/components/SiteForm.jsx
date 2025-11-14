@@ -361,7 +361,6 @@ const DopForm = () => {
 
   return (
     <div className="ad__container">
-    <h1>Проверка сайтов</h1>
     <button className='clear__form' onClick={clearForm}>Очистить форму</button>
     <form onSubmit={handleSubmit} className="form__global">
         <div className="point__work">

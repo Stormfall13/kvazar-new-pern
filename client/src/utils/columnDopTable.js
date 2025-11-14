@@ -1,7 +1,9 @@
   // Определяем порядок и названия только нужных колонок
   const columns = [
+    { key: 'favorite', label: '⭐', width: '60px' },
     { key: 'id', label: 'ID', width: '100px' },
-    { key: 'date', label: 'Дата', width: '140px' },
+    { key: 'date', label: 'Дата', width: '65px' },
+    { key: 'timeText', label: 'Время', width: '60px' },
     { key: 'reglament', label: 'Регламент', width: '200px' },
     { key: 'inspector', label: 'Проверяющий', width: '150px' },
     { key: 'executor', label: 'Исполнитель', width: '150px' },
@@ -17,7 +19,10 @@
     { key: 'iteration', label: 'Итерации', width: '80px' },
     { key: 'pointsRemove', label: 'Снято баллов', width: '100px' },
     { key: 'dispute', label: 'Спор', width: '60px' },
-    { key: 'commentError', label: 'Комментарий ошибки', width: '200px' },
+    { key: 'recomenPoint', label: 'Рекомендации Балл', width: '95px' },
+    { key: 'errorsPoint', label: 'Ошибки Балл', width: '95px' },
+    { key: 'criticPoint', label: 'Критич-е ошибки Балл', width: '95px' },
+    { key: 'generalPoint', label: 'Суммарный балл', width: '95px' },
     { key: 'delayTester', label: 'Просрочка тест.', width: '120px' },
     { key: 'delayExecutor', label: 'Просрочка исп.', width: '120px' },
     { key: 'linkReport', label: 'Ссылка на отчет', width: '200px' },

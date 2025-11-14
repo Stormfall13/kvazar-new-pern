@@ -13,6 +13,7 @@ router.post("/", async (req, res) => {
     try {
         const { 
             date, 
+            timeText,
             reglament, 
             executor, 
             amount, 
@@ -21,6 +22,10 @@ router.post("/", async (req, res) => {
             recommen,
             errors,
             critic,
+            recomenPoint,
+            errorsPoint,
+            criticPoint,
+            generalPoint,
             counting,
             iteration,
             deadlines,
@@ -43,6 +48,7 @@ router.post("/", async (req, res) => {
 
         const dopWork = await Dop.create({
             date,
+            timeText,
             reglament, 
             executor, 
             amount, 
@@ -51,6 +57,10 @@ router.post("/", async (req, res) => {
             recommen,
             errors,
             critic,
+            recomenPoint,
+            errorsPoint,
+            criticPoint,
+            generalPoint,
             counting,
             iteration,
             deadlines,

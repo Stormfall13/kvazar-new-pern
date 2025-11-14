@@ -1,240 +1,649 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+// import { useEffect, useState } from 'react';
+// import { useSelector } from 'react-redux';
+// import { useNavigate, Link } from 'react-router-dom';
+// import './table.css';
 
-import noPhoto from "../assets/no-photo.png";
-import HeaderMain from "../components/HeaderMain";
+// const Favorites = () => {
+//   const [favoriteDops, setFavoriteDops] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const navigate = useNavigate();
+//   const token = useSelector((state) => state.auth.token);
+//   const user = useSelector((state) => state.auth.user);
+//   console.log(favoriteDops);
+  
+//   useEffect(() => {
+//     if (!token) {
+//       navigate("/login");
+//       return;
+//     }
+
+//     loadFavorites();
+//   }, [token, navigate]);
+
+//   const loadFavorites = async () => {
+//     try {
+//       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/favorites`, {
+//         method: "GET",
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//         },
+//       });
+
+//       if (!res.ok) throw new Error("Ошибка загрузки избранного");
+//       const data = await res.json();
+//       setFavoriteDops(data);
+//     } catch (error) {
+//       console.error("Ошибка:", error);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const removeFromFavorites = async (dopId) => {
+//     try {
+//       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/favorites/remove/${dopId}`, {
+//         method: "DELETE",
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//         },
+//       });
+
+//       if (!res.ok) throw new Error("Ошибка удаления");
+      
+//       // Обновляем список
+//       setFavoriteDops(prev => prev.filter(item => item.id !== dopId));
+//     } catch (error) {
+//       console.error("Ошибка:", error);
+//     }
+//   };
+
+//   const removeAllFavorites = async () => {
+//     if (!window.confirm("Вы уверены, что хотите удалить все избранные записи?")) return;
+    
+//     try {
+//       const results = await Promise.all(
+//         favoriteDops
+//           .filter(item => item !== null) // Добавь фильтрацию
+//           .map(item => 
+//             fetch(`${process.env.REACT_APP_API_URL}/api/favorites/remove/${item.id}`, {
+//               method: "DELETE",
+//               headers: {
+//                 Authorization: `Bearer ${token}`,
+//               },
+//             })
+//           )
+//       );
+
+//       if (results.every(res => res.ok)) {
+//         setFavoriteDops([]);
+//       } else {
+//         console.error("Ошибка при удалении некоторых записей");
+//       }
+//     } catch (error) {
+//       console.error("Ошибка:", error);
+//     }
+//   };
+
+//   if (!user) {
+//     return <h2>Загрузка...</h2>;
+//   }
+
+//   if (loading) {
+//     return (
+//       <div className="table__container">
+//         <div className="table-header">
+//           <Link to="/dop-work" className="form-link">← Назад к таблице</Link>
+//           <h1>Избранное</h1>
+//         </div>
+//         <div className="empty-state">Загрузка...</div>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="table__container">
+//       <div className="table-header">
+//         <Link to="/dop-work" className="form-link">← Назад к таблице</Link>
+//         <h1>Избранное</h1>
+//         {favoriteDops.length > 0 && (
+//           <button 
+//             onClick={removeAllFavorites}
+//             className="btn-delete"
+//             style={{ marginLeft: 'auto' }}
+//           >
+//             🗑️ Удалить все
+//           </button>
+//         )}
+//       </div>
+
+//       {favoriteDops.length > 0 ? (
+//         <div className="table-body">
+//           <div className="table-header-row">
+//             <div className="header-cell" style={{ width: '60px' }}>ID</div>
+//             <div className="header-cell" style={{ width: '100px' }}>Дата</div>
+//             <div className="header-cell" style={{ width: '120px' }}>Исполнитель</div>
+//             <div className="header-cell" style={{ width: '150px' }}>Тип работы</div>
+//             <div className="header-cell" style={{ width: '80px' }}>Баллы</div>
+//             <div className="header-cell" style={{ width: '100px' }}>Действия</div>
+//           </div>
+          
+//           {favoriteDops.filter(item => item !== null).map((item) => (
+//             <div key={item.id} className="table-row favorite-row">
+//               <div className="data-cell" style={{ width: '60px' }}>{item.id}</div>
+//               <div className="data-cell" style={{ width: '100px' }}>
+//                 {item.date ? new Date(item.date).toLocaleDateString('ru-RU') : '-'}
+//               </div>
+//               <div className="data-cell" style={{ width: '120px' }}>{item.executor || '-'}</div>
+//               <div className="data-cell" style={{ width: '150px' }}>{item.typeWork || '-'}</div>
+//               <div className="data-cell" style={{ width: '80px' }}>{item.point || '0'}</div>
+//               <div className="data-cell actions-cell" style={{ width: '100px' }}>
+//                 <button 
+//                   onClick={() => removeFromFavorites(item.id)}
+//                   className="btn-delete"
+//                   title="Удалить из избранного"
+//                 >
+//                   🗑️ Удалить
+//                 </button>
+//               </div>
+//             </div>
+//           ))}
+//         </div>
+//       ) : (
+//         <div className="empty-state">
+//           В избранном пока ничего нет
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default Favorites;
+
+
+
+// import { useEffect, useState } from 'react';
+// import { useSelector } from 'react-redux';
+// import { useNavigate, Link } from 'react-router-dom';
+// import './table.css';
+
+// // Импортируем колонки для разных типов данных
+// import dopColumns from '../utils/columnDopTable';
+// // import siteColumns from '../utils/columnSiteTable'; // Потом добавим
+
+// const Favorites = () => {
+//   const [favoriteItems, setFavoriteItems] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [activeTable, setActiveTable] = useState('dop'); // 'dop' или 'sites'
+  
+//   const navigate = useNavigate();
+//   const token = useSelector((state) => state.auth.token);
+//   const user = useSelector((state) => state.auth.user);
+
+//   // Определяем колонки в зависимости от активной таблицы
+//   const getColumns = () => {
+//     switch (activeTable) {
+//       case 'dop':
+//         return dopColumns.filter(col => 
+//           ['id', 'date', 'executor', 'typeWork', 'point', 'errors', 'commentError'].includes(col.key)
+//         );
+//       // case 'sites':
+//       //   return siteColumns.filter(col => 
+//       //     ['id', 'url', 'status', 'score', 'issues'].includes(col.key)
+//       //   );
+//       default:
+//         return dopColumns.filter(col => 
+//           ['id', 'date', 'executor', 'typeWork', 'point', 'errors', 'commentError'].includes(col.key)
+//         );
+//     }
+//   };
+
+//   const columns = getColumns();
+
+//   useEffect(() => {
+//     if (!token) {
+//       navigate("/login");
+//       return;
+//     }
+
+//     loadFavorites();
+//   }, [token, navigate, activeTable]);
+
+//   const loadFavorites = async () => {
+//     try {
+//       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/favorites`, {
+//         method: "GET",
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//         },
+//       });
+
+//       if (!res.ok) throw new Error("Ошибка загрузки избранного");
+//       const data = await res.json();
+//       setFavoriteItems(data);
+//     } catch (error) {
+//       console.error("Ошибка:", error);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const removeFromFavorites = async (itemId) => {
+//     try {
+//       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/favorites/remove/${itemId}`, {
+//         method: "DELETE",
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//         },
+//       });
+
+//       if (!res.ok) throw new Error("Ошибка удаления");
+      
+//       // Обновляем список
+//       setFavoriteItems(prev => prev.filter(item => item.id !== itemId));
+//     } catch (error) {
+//       console.error("Ошибка:", error);
+//     }
+//   };
+
+//   const removeAllFavorites = async () => {
+//     if (!window.confirm("Вы уверены, что хотите удалить все избранные записи?")) return;
+    
+//     try {
+//       const results = await Promise.all(
+//         favoriteItems
+//           .filter(item => item !== null)
+//           .map(item => 
+//             fetch(`${process.env.REACT_APP_API_URL}/api/favorites/remove/${item.id}`, {
+//               method: "DELETE",
+//               headers: {
+//                 Authorization: `Bearer ${token}`,
+//               },
+//             })
+//           )
+//       );
+
+//       if (results.every(res => res.ok)) {
+//         setFavoriteItems([]);
+//       } else {
+//         console.error("Ошибка при удалении некоторых записей");
+//       }
+//     } catch (error) {
+//       console.error("Ошибка:", error);
+//     }
+//   };
+
+//   // Вспомогательные функции
+//   const formatDate = (dateString) => {
+//     if (!dateString) return '';
+//     const date = new Date(dateString);
+//     return date.toLocaleDateString('ru-RU');
+//   };
+
+//   const truncateText = (text, maxLength = 50) => {
+//     if (!text) return '';
+//     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+//   };
+
+//   const isValidUrl = (string) => {
+//     try {
+//       new URL(string);
+//       return true;
+//     } catch (_) {
+//       return false;
+//     }
+//   };
+
+//   const renderCellContent = (item, column) => {
+//     if (column.key === 'date') {
+//       return formatDate(item[column.key]);
+//     } else if ((column.key === 'reglament' || column.key === 'linkReport') && isValidUrl(item[column.key])) {
+//       return (
+//         <a href={item[column.key]} target="_blank" rel="noopener noreferrer" className="link">
+//           {truncateText(item[column.key], 30)}
+//         </a>
+//       );
+//     } else if (column.key === 'counting' || column.key === 'commentError') {
+//       return truncateText(item[column.key], 30);
+//     } else {
+//       return item[column.key] || '0';
+//     }
+//   };
+
+//   if (!user) {
+//     return <h2>Загрузка...</h2>;
+//   }
+
+//   if (loading) {
+//     return (
+//       <div className="table__container">
+//         <div className="table-header">
+//           <Link to="/dop-work" className="form-link">← Назад к таблице</Link>
+//           <h1>Избранное</h1>
+//         </div>
+//         <div className="empty-state">Загрузка...</div>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="table__container">
+//       <div className="table-header">
+//         <Link to="/dop-work" className="form-link">← Назад к таблице</Link>
+//         <h1>Избранное</h1>
+//         {favoriteItems.length > 0 && (
+//           <button 
+//             onClick={removeAllFavorites}
+//             className="btn-delete"
+//             style={{ marginLeft: 'auto' }}
+//           >
+//             🗑️ Удалить все
+//           </button>
+//         )}
+//       </div>
+
+//       {/* Переключатель таблиц - пока скрыт, потом добавим */}
+//       {/* <div className="table-switcher">
+//         <button 
+//           className={`tab-button ${activeTable === 'dop' ? 'active' : ''}`}
+//           onClick={() => setActiveTable('dop')}
+//         >
+//           Дополнительные работы
+//         </button>
+//         <button 
+//           className={`tab-button ${activeTable === 'sites' ? 'active' : ''}`}
+//           onClick={() => setActiveTable('sites')}
+//         >
+//           Проверка сайтов
+//         </button>
+//       </div> */}
+
+//       {favoriteItems.length > 0 ? (
+//         <div className="table-section">
+//           <h2 className="table-section-title">
+//             {activeTable === 'dop' ? 'Дополнительные работы' : 'Проверка сайтов'}
+//           </h2>
+          
+//           <div className="table-body">
+//             <div className="table-header-row">
+//               {columns.map(column => (
+//                 <div 
+//                   key={column.key} 
+//                   className="header-cell"
+//                   style={{ width: column.width }}
+//                 >
+//                   <div className="header-content">
+//                     <span>{column.label}</span>
+//                   </div>
+//                 </div>
+//               ))}
+//               <div className="header-cell" style={{ width: '100px' }}>Действия</div>
+//             </div>
+            
+//             {favoriteItems.filter(item => item !== null).map((item) => (
+//               <div key={item.id} className="table-row favorite-row">
+//                 {columns.map(column => (
+//                   <div 
+//                     key={column.key} 
+//                     className="data-cell"
+//                     style={{ width: column.width }}
+//                     title={item[column.key]}
+//                   >
+//                     {renderCellContent(item, column)}
+//                   </div>
+//                 ))}
+//                 <div className="data-cell actions-cell" style={{ width: '100px' }}>
+//                   <button 
+//                     onClick={() => removeFromFavorites(item.id)}
+//                     className="btn-delete"
+//                     title="Удалить из избранного"
+//                   >
+//                     🗑️ Удалить
+//                   </button>
+//                 </div>
+//               </div>
+//             ))}
+//           </div>
+//         </div>
+//       ) : (
+//         <div className="empty-state">
+//           В избранном пока ничего нет
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default Favorites;
+
+
+import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { useNavigate, Link } from 'react-router-dom';
+import './table.css';
+
+// Импортируем колонки для разных типов данных
+import dopColumns from '../utils/columnDopTable';
+// import siteColumns from '../utils/columnSiteTable'; // Потом добавим
 
 const Favorites = () => {
-  const [favorites, setFavorites] = useState([]);
+  const [favoriteItems, setFavoriteItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTable, setActiveTable] = useState('dop'); // 'dop' или 'sites'
+  
+  const navigate = useNavigate();
+  const token = useSelector((state) => state.auth.token);
+  const user = useSelector((state) => state.auth.user);
 
-  const fetchFavorites = async () => {
+  // Определяем колонки в зависимости от активной таблицы
+  const getColumns = () => {
+    switch (activeTable) {
+      case 'dop':
+        // ВОЗВРАЩАЕМ ВСЕ КОЛОНКИ КРОМЕ ИЗБРАННОГО
+        return dopColumns.filter(col => col.key !== 'favorite');
+      // case 'sites':
+      //   return siteColumns.filter(col => col.key !== 'favorite');
+      default:
+        return dopColumns.filter(col => col.key !== 'favorite');
+    }
+  };
+
+  const columns = getColumns();
+
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    loadFavorites();
+  }, [token, navigate, activeTable]);
+
+  const loadFavorites = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/favorites", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/favorites`, {
+        method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
+      if (!res.ok) throw new Error("Ошибка загрузки избранного");
       const data = await res.json();
-      setFavorites(data);
+      setFavoriteItems(data);
     } catch (error) {
-      console.error("Ошибка при загрузке избранного:", error);
+      console.error("Ошибка:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const removeFavorite = async (productId) => {
+  const removeFromFavorites = async (itemId) => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/favorites/remove/${productId}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/favorites/remove/${itemId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      if (res.ok) {
-        setFavorites(favorites.filter(fav => fav.Product.id !== productId));
-      } else {
-        console.error("Ошибка при удалении из избранного");
-      }
+      if (!res.ok) throw new Error("Ошибка удаления");
+      
+      // Обновляем список
+      setFavoriteItems(prev => prev.filter(item => item.id !== itemId));
     } catch (error) {
       console.error("Ошибка:", error);
     }
   };
 
   const removeAllFavorites = async () => {
+    if (!window.confirm("Вы уверены, что хотите удалить все избранные записи?")) return;
+    
     try {
-      const token = localStorage.getItem("token");
       const results = await Promise.all(
-        favorites.map(fav => 
-          fetch(`${process.env.REACT_APP_API_URL}/api/favorites/remove/${fav.Product.id}`, {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
-        )
+        favoriteItems
+          .filter(item => item !== null)
+          .map(item => 
+            fetch(`${process.env.REACT_APP_API_URL}/api/favorites/remove/${item.id}`, {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            })
+          )
       );
 
       if (results.every(res => res.ok)) {
-        setFavorites([]);
+        setFavoriteItems([]);
       } else {
-        console.error("Ошибка при удалении некоторых товаров");
+        console.error("Ошибка при удалении некоторых записей");
       }
     } catch (error) {
       console.error("Ошибка:", error);
     }
   };
 
-  useEffect(() => {
-    fetchFavorites();
-  }, []);
+  // Вспомогательные функции
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ru-RU');
+  };
 
-  if (loading) return <p>Загрузка...</p>;
+  const truncateText = (text, maxLength = 50) => {
+    if (!text) return '';
+    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+  };
+
+  const isValidUrl = (string) => {
+    try {
+      new URL(string);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  };
+
+  const renderCellContent = (item, column) => {
+    if (column.key === 'date') {
+      return formatDate(item[column.key]);
+    } else if ((column.key === 'reglament' || column.key === 'linkReport') && isValidUrl(item[column.key])) {
+      return (
+        <a href={item[column.key]} target="_blank" rel="noopener noreferrer" className="link">
+          {truncateText(item[column.key], 30)}
+        </a>
+      );
+    } else if (column.key === 'counting' || column.key === 'commentError') {
+      return truncateText(item[column.key], 30);
+    } else {
+      return item[column.key] || '0';
+    }
+  };
+
+  if (!user) {
+    return <h2>Загрузка...</h2>;
+  }
+
+  if (loading) {
+    return (
+      <div className="table__container">
+        <div className="table-header">
+          <Link to="/dop-work" className="form-link">← Назад к таблице</Link>
+          <h1>Избранное</h1>
+        </div>
+        <div className="empty-state">Загрузка...</div>
+      </div>
+    );
+  }
 
   return (
-    <>
-    <HeaderMain />
-    <div>
-    <h2>Избранные товары</h2>
-    {favorites.length > 0 && (
-      <button 
-        onClick={removeAllFavorites}
-        style={{
-          padding: "8px 16px",
-          backgroundColor: "#ff4444",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer"
-        }}
-      >
-        Удалить все
-      </button>
-    )}
-    {favorites.length === 0 ? (
-        <p>Нет избранных товаров.</p>
-      ) : (
-        <div style={{ 
-          display: "grid", 
-          gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", 
-          gap: "20px" 
-        }}>
-          {favorites.map((fav) => (
-            <div key={fav.id} >
-              {/* Кнопка удаления для каждого товара */}
-              <button onClick={() => removeFavorite(fav.Product.id)}>X</button>
-              <Link 
-                to={`/product/${fav.Product?.id}`} 
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                {/* Главное изображение (первое из массива или product.image) */}
-                <div style={{ 
-                  height: "200px", 
-                  display: "flex", 
-                  justifyContent: "center", 
-                  alignItems: "center",
-                  marginBottom: "15px",
-                  backgroundColor: "#f9f9f9",
-                  borderRadius: "4px"
-                }}>
-                  <img
-                    src={
-                      fav.Product?.images?.length > 0 
-                        ? `${process.env.REACT_APP_API_URL}${fav.Product.images[0]}`
-                        : fav.Product?.image 
-                          ? `${process.env.REACT_APP_API_URL}${fav.Product.image}`
-                          : noPhoto
-                    }
-                    alt={fav.Product?.name}
-                    style={{ 
-                      maxWidth: "100%", 
-                      maxHeight: "100%",
-                      objectFit: "contain"
-                    }}
-                  />
-                </div>
+    <div className="table__container">
+      <div className="table-header">
+        <Link to="/dop-work" className="form-link">← Назад к таблице</Link>
+        <h1>Избранное</h1>
+        {favoriteItems.length > 0 && (
+          <button 
+            onClick={removeAllFavorites}
+            className="btn-delete"
+            style={{ marginLeft: 'auto' }}
+          >
+            🗑️ Удалить все
+          </button>
+        )}
+      </div>
 
-                <h3 style={{ margin: "10px 0" }}>{fav.Product?.name}</h3>
-                <p style={{ 
-                  fontSize: "18px", 
-                  fontWeight: "bold",
-                  margin: "10px 0"
-                }}>
-                  {fav.Product?.price} $
-                </p>
-
-                {/* Бейджики (хит, новинка, акция) */}
-                <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
-                  {fav.Product?.isHit && (
-                    <span style={{ 
-                      background: "#ffebee", 
-                      color: "#c62828",
-                      padding: "3px 8px",
-                      borderRadius: "4px",
-                      fontSize: "12px"
-                    }}>
-                      Хит
-                    </span>
-                  )}
-                  {fav.Product?.isNew && (
-                    <span style={{ 
-                      background: "#e8f5e9", 
-                      color: "#2e7d32",
-                      padding: "3px 8px",
-                      borderRadius: "4px",
-                      fontSize: "12px"
-                    }}>
-                      Новинка
-                    </span>
-                  )}
-                  {fav.Product?.isSale && (
-                    <span style={{ 
-                      background: "#fff8e1", 
-                      color: "#ff8f00",
-                      padding: "3px 8px",
-                      borderRadius: "4px",
-                      fontSize: "12px"
-                    }}>
-                      Акция
-                    </span>
-                  )}
-                </div>
-
-                {/* Размеры */}
-                {fav.Product?.sizes?.length > 0 && (
-                  <div style={{ margin: "10px 0" }}>
-                    <p style={{ marginBottom: "5px", fontSize: "14px" }}>Размеры:</p>
-                    <div style={{ display: "flex", gap: "5px", flexWrap: "wrap" }}>
-                      {fav.Product.sizes.map((size, index) => (
-                        <span 
-                          key={index}
-                          style={{
-                            padding: "3px 8px",
-                            background: "#f5f5f5",
-                            borderRadius: "4px",
-                            fontSize: "12px"
-                          }}
-                        >
-                          {size}
-                        </span>
-                      ))}
-                    </div>
+      {favoriteItems.length > 0 ? (
+        <div className="table-section">
+          <h2 className="table-section-title">
+            Дополнительные работы
+          </h2>
+          
+          <div className="table-body favorites-table">
+            <div className="table-header-row">
+              {columns.map(column => (
+                <div 
+                  key={column.key} 
+                  className="header-cell"
+                  style={{ width: column.width }}
+                >
+                  <div className="header-content">
+                    <span>{column.label}</span>
                   </div>
-                )}
-
-                {/* Цвета */}
-                {fav.Product?.colors?.length > 0 && (
-                  <div style={{ margin: "10px 0" }}>
-                    <p style={{ marginBottom: "5px", fontSize: "14px" }}>Цвета:</p>
-                    <div style={{ display: "flex", gap: "5px", flexWrap: "wrap" }}>
-                      {fav.Product.colors.map((color, index) => (
-                        <div 
-                          key={index}
-                          style={{
-                            width: "20px",
-                            height: "20px",
-                            borderRadius: "50%",
-                            background: color,
-                            border: "1px solid #ddd"
-                          }}
-                          title={color}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </Link>
+                </div>
+              ))}
+              <div className="header-cell" style={{ width: '100px' }}>Действия</div>
             </div>
-          ))}
+            
+            {favoriteItems.filter(item => item !== null).map((item) => (
+              <div key={item.id} className="table-row favorite-row">
+                {columns.map(column => (
+                  <div 
+                    key={column.key} 
+                    className="data-cell"
+                    style={{ width: column.width }}
+                    title={item[column.key]}
+                  >
+                    {renderCellContent(item, column)}
+                  </div>
+                ))}
+                <div className="data-cell actions-cell" style={{ width: '100px' }}>
+                  <button 
+                    onClick={() => removeFromFavorites(item.id)}
+                    className="btn-delete"
+                    title="Удалить из избранного"
+                  >
+                    🗑️ Удалить
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="empty-state">
+          В избранном пока ничего нет
         </div>
       )}
     </div>
-    </>
   );
 };
 

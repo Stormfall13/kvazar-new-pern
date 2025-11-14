@@ -1,4 +1,5 @@
 require("dotenv").config();
+require("./models/associations");
 
 const express = require("express");
 const cors = require("cors");
@@ -9,10 +10,12 @@ const sequelize = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const adminRoutes = require("./routes/adminRoutes");
-const imageRoutes = require("./routes/imageRoutes");
+// const imageRoutes = require("./routes/imageRoutes");
 
 const dopRoutes = require('./routes/dopRoutes');
 const executorRoutes = require('./routes/executorRoutes');
+const favoritesRoutes = require('./routes/favoritesRoutes');
+const dataPeriodsRoutes = require("./routes/dataPeriodsRouter");
 
 const authMiddleware = require("./middlewares/authMiddleware");
 
@@ -30,17 +33,19 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/admin", adminRoutes);
-app.use("/api/images", imageRoutes);
-app.use("/assets", (req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "*"); 
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-    next();
-}, express.static(path.join(__dirname, "assets"))); 
+// app.use("/api/images", imageRoutes);
+// app.use("/assets", (req, res, next) => {
+//     res.setHeader("Access-Control-Allow-Origin", "*"); 
+//     res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
+//     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+//     res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+//     next();
+// }, express.static(path.join(__dirname, "assets"))); 
 
 app.use("/api/dop", dopRoutes);
 app.use("/api/executors", executorRoutes);
+app.use('/api/favorites', favoritesRoutes);
+app.use('/api/date-periods', dataPeriodsRoutes);
 
 // Защищённый маршрут (пример)
 app.get("/api/protected", authMiddleware, (req, res) => {

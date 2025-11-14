@@ -20,7 +20,7 @@ const QaForm = () => {
           onClick={() => setActive("tab1")}
           className={`tab-button ${active === "tab1" ? "active" : ""}`}
           >
-          Tab 1
+          Доп. Работы
           </button>
 
 
@@ -30,7 +30,7 @@ const QaForm = () => {
           onClick={() => setActive("tab2")}
           className={`tab-button ${active === "tab2" ? "active" : ""}`}
           >
-          Tab 2
+          Проверка сайтов
           </button>
           </div>
 

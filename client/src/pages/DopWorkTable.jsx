@@ -4,16 +4,27 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
 import columns from '../utils/columnDopTable'
-
 import './table.css';
 
 const DopWorkTable = () => {
+  const [reglist, setRegList] = useState([]);
+  const [editItem, setEditItem] = useState(null);
+  const [editFormData, setEditFormData] = useState({});
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [favorites, setFavorites] = useState(new Set()); // Для хранения ID избранных записей
+  const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
+  
+  const [clickPosition, setClickPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
-  const [reglist, setRegList] = useState([])
-  console.log(reglist);
+    // Новые состояния для CSV
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState('');
+  const [availableDates, setAvailableDates] = useState([]);
   
   const navigate = useNavigate();
-
   const token = useSelector((state) => state.auth.token);
   const user = useSelector((state) => state.auth.user);
 
@@ -22,50 +33,393 @@ const DopWorkTable = () => {
       navigate("/login");
       return;
     }
-    if (!user) return; // Ждём, пока загрузится пользователь
+    if (!user) return;
 
-    // ✅ список ролей, которым разрешён доступ
     const allowedRoles = ["user", "admin"];
     if (!allowedRoles.includes(user.role)) {
-      navigate("/"); // Нет прав — перенаправляем на главную
+      navigate("/");
       return;
     }
 
-    const getReglamentAll = async () => {
-      try {
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/dop`, {
-          method: "GET",
-          headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-          },
-        })
+    getReglamentAll();
+  }, [token, user, navigate]);
 
-        if (!res.ok) throw new Error("Ошибка загрузки пользователей");
-        const data = await res.json();
-        setRegList(data);
-      } catch (error) {
-        console.error("Ошибка:", error);
+    // Функция для получения уникальных дат из данных
+  useEffect(() => {
+    if (reglist.length > 0) {
+      const dates = [...new Set(reglist.map(item => item.reportPeriods))].filter(date => date).sort();
+      setAvailableDates(dates);
+      if (dates.length > 0 && !selectedDate) {
+        setSelectedDate(dates[0]); // Установить первую дату по умолчанию
       }
     }
+  }, [reglist]);
 
-    getReglamentAll();
-  }, [token, user, navigate])
+  // Функция для скачивания CSV
+  const downloadCSV = () => {
+      if (!selectedDate) {
+        alert('Пожалуйста, выберите дату для отчета');
+        return;
+      }
 
-  /*########### Фильтр по колонкам #############*/
+      // Фильтруем данные по выбранной дате
+      const filteredData = reglist.filter(item => item.reportPeriods === selectedDate);
+      
+      if (filteredData.length === 0) {
+        alert('Нет данных для выбранной даты');
+        return;
+      }
 
-  // Добавляем состояния для фильтров по столбцам
+      // Создаем заголовки CSV
+      const headers = [
+        'ID',
+        'Дата',
+        'Время',
+        'Регламент',
+        'Исполнитель',
+        'Кол-во работ',
+        'Вид работ',
+        'Вид проверки',
+        'Рекомендации',
+        'Ошибки',
+        'Критические ошибки',
+        'Рек. баллы',
+        'Ош. баллы',
+        'Крит. баллы',
+        'Общий балл',
+        'Отчет',
+        'Итерации',
+        'Баллы',
+        'Проверяющий',
+        'Отдел',
+        'Просрочка тест.',
+        'Просрочка исп.',
+        'Снято баллов',
+        'Спор',
+        'Комментарий ошибки',
+        'Ссылка на отчет',
+        'Отчет времени'
+      ];
+
+      // Создаем строки данных
+      const csvRows = filteredData.map(item => [
+        item.id || '',
+        item.date || '',
+        item.timeText || '',
+        `"${(item.reglament || '').replace(/"/g, '""')}"`,
+        `"${(item.executor || '').replace(/"/g, '""')}"`,
+        item.amount || '',
+        item.typeWork || '',
+        item.typeTest || '',
+        item.recommen || 0,
+        item.errors || 0,
+        item.critic || 0,
+        item.recomenPoint || 0,
+        item.errorsPoint || 0,
+        item.criticPoint || 0,
+        item.generalPoint || 0,
+        `"${(item.counting || '').replace(/"/g, '""')}"`,
+        item.iteration || 0,
+        item.point || 0,
+        `"${(item.inspector || '').replace(/"/g, '""')}"`,
+        `"${(item.departament || '').replace(/"/g, '""')}"`,
+        item.delayTester || '',
+        item.delayExecutor || '',
+        item.pointsRemove || 0,
+        item.dispute || 0,
+        `"${(item.commentError || '').replace(/"/g, '""')}"`,
+        `"${(item.linkReport || '').replace(/"/g, '""')}"`,
+        item.reportPeriods || ''
+      ]);
+
+      // Объединяем заголовки и данные
+      const csvContent = [
+        headers.join(','),
+        ...csvRows.map(row => row.join(','))
+      ].join('\n');
+
+      // Создаем Blob и скачиваем
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `отчет_${selectedDate}.csv`);
+      link.style.visibility = 'hidden';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      setShowDatePicker(false);
+    };
+
+    // Функция для открытия/закрытия выбора даты
+    const toggleDatePicker = () => {
+      setShowDatePicker(!showDatePicker);
+  };
+
+
+  // Функции для перетаскивания
+  const handleMouseDown = (e) => {
+    if (!e.target.closest('.floating-btn')) { // Не начинать перетаскивание при клике на кнопки
+      setIsDragging(true);
+      setDragOffset({
+        x: e.clientX - clickPosition.x,
+        y: e.clientY - clickPosition.y
+      });
+    }
+  };
+
+  const handleMouseMove = (e) => {
+    if (isDragging) {
+      const newX = e.clientX - dragOffset.x;
+      const newY = e.clientY - dragOffset.y;
+      
+      // Ограничиваем позицию в пределах экрана
+      const maxX = window.innerWidth - 300; // Ширина floating-actions
+      const maxY = window.innerHeight - 200; // Высота floating-actions
+      
+      setClickPosition({
+        x: Math.max(10, Math.min(newX, maxX)),
+        y: Math.max(10, Math.min(newY, maxY))
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // Добавь обработчики событий
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, dragOffset]);
+
+  // Закрываем кнопки при клике вне области
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest('.floating-actions') && !e.target.closest('.table-row')) {
+        setSelectedRow(null);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  const getReglamentAll = async () => {
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/dop`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error("Ошибка загрузки данных");
+      const data = await res.json();
+      setRegList(data);
+    } catch (error) {
+      console.error("Ошибка:", error);
+    }
+  };
+
+  /*########### Функции редактирования #############*/
+
+  const handleEdit = (item) => {
+    setEditItem(item);
+    setEditFormData({ ...item });
+    setIsEditing(true);
+    setSelectedRow(null); // Скрываем кнопки при начале редактирования
+  };
+
+  const handleSaveEdit = async () => {
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/dop/${editItem.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(editFormData),
+      });
+
+      if (!res.ok) throw new Error("Ошибка обновления");
+
+      const updatedItem = await res.json();
+      
+      setRegList(prev => prev.map(item => 
+        item.id === editItem.id ? updatedItem.dopWork : item
+      ));
+      
+      cancelEdit();
+      await getReglamentAll();
+    } catch (error) {
+      console.error("Ошибка при сохранении:", error);
+      alert("Ошибка при сохранении изменений");
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Вы уверены, что хотите удалить эту запись?")) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/dop/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error("Ошибка удаления");
+
+      setRegList(prev => prev.filter(item => item.id !== id));
+      setSelectedRow(null); // Закрываем кнопки после удаления
+      
+      if (editItem && editItem.id === id) {
+        cancelEdit();
+      }
+    } catch (error) {
+      console.error("Ошибка при удалении:", error);
+      alert("Ошибка при удалении записи");
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditItem(null);
+    setEditFormData({});
+    setIsEditing(false);
+  };
+
+  // Функция для расчета основных баллов (point) по типу проверки
+  const calculateMainPoints = (typeTest, typeWork, amount) => {
+    const amountMultipliers = {
+      '1-2': 1.5,
+      '3-5': 4,
+      '6 и более': 8,
+    };
+
+    const typeMultipliers = {
+      'Не типовая': 16,
+      'Средняя': 8,
+      'Типовая': 4,
+    };
+
+    const bTypeMultipliers = {
+      'Не типовая': 6,
+      'Средняя': 4,
+      'Типовая': 1,
+    };
+
+    if (typeTest === 'Первая') {
+      const basePoints = typeMultipliers[typeWork] || 0;
+      const multiplier = amountMultipliers[amount] || 0;
+      return basePoints * multiplier;
+    }
+
+    if (typeTest === 'Итерация') {
+      const basePoints = bTypeMultipliers[typeWork] || 0;
+      const multiplier = amountMultipliers[amount] || 0;
+      return basePoints * multiplier;
+    }
+
+    if (typeTest === 'Наша ошибка') {
+      return 1;
+    }
+
+    return 0;
+  };
+
+  // Функция перерасчета коэффицентов
+  const calculatePointsForEdit = (recommen, errors, critic) => {
+    const recomenVal = parseFloat(recommen) || 0;
+    const errorsVal = parseFloat(errors) || 0;
+    const criticVal = parseFloat(critic) || 0;
+    
+    const recomenPoint = recomenVal * 0.1;
+    const errorsPoint = errorsVal * 0.5;
+    const criticPoint = criticVal * 1;
+    const generalPoint = recomenPoint + errorsPoint + criticPoint;
+    
+    return {
+      recomenPoint: parseFloat(recomenPoint.toFixed(2)),
+      errorsPoint: parseFloat(errorsPoint.toFixed(2)),
+      criticPoint: parseFloat(criticPoint.toFixed(2)),
+      generalPoint: parseFloat(generalPoint.toFixed(2))
+    };
+  };
+
+
+  const handleInputChange = (field, value) => {
+  const newFormData = {
+    ...editFormData,
+    [field]: value
+  };
+
+    // Если меняются поля, влияющие на основные баллы - пересчитываем point
+  if (['typeTest', 'typeWork', 'amount'].includes(field)) {
+    const calculatedPoint = calculateMainPoints(
+      field === 'typeTest' ? value : newFormData.typeTest,
+      field === 'typeWork' ? value : newFormData.typeWork,
+      field === 'amount' ? value : newFormData.amount
+    );
+    
+    newFormData.point = calculatedPoint;
+  }
+
+  // Если меняются поля рекомендаций, ошибок или критических - пересчитываем баллы
+  if (['recommen', 'errors', 'critic'].includes(field)) {
+      const calculated = calculatePointsForEdit(
+        field === 'recommen' ? value : newFormData.recommen,
+        field === 'errors' ? value : newFormData.errors,
+        field === 'critic' ? value : newFormData.critic
+      );
+      
+      newFormData.recomenPoint = calculated.recomenPoint;
+      newFormData.errorsPoint = calculated.errorsPoint;
+      newFormData.criticPoint = calculated.criticPoint;
+      newFormData.generalPoint = calculated.generalPoint;
+    }
+
+    setEditFormData(newFormData);
+  };
+
+  // Обработчик клика по строке
+  const handleRowClick = (item, e) => {
+    if (isEditing) return; // Не реагируем на клики во время редактирования
+    
+    // Если кликаем по той же строке - закрываем кнопки
+    if (selectedRow === item.id) {
+      setSelectedRow(null);
+    } else {
+      setSelectedRow(item.id);
+      setClickPosition({ x: e.clientX, y: e.clientY });
+    }
+  };
+
+  /*########### Остальной код фильтров и сортировки остается без изменений #############*/
+
   const [columnFilters, setColumnFilters] = useState(() => {
     const saved = localStorage.getItem('dopColumnFilters');
     return saved ? JSON.parse(saved) : {};
   });
 
-  // Сохраняем фильтры в localStorage
   useEffect(() => {
     localStorage.setItem('dopColumnFilters', JSON.stringify(columnFilters));
   }, [columnFilters]);
 
-  // Функция фильтрации по столбцам
   const applyColumnFilters = (data) => {
     return data.filter(item => {
       return Object.entries(columnFilters).every(([column, filterValue]) => {
@@ -77,7 +431,6 @@ const DopWorkTable = () => {
     });
   };
 
-  // Обработчики для фильтров столбцов
   const handleColumnFilter = (column, value) => {
     setColumnFilters(prev => ({
       ...prev,
@@ -99,35 +452,26 @@ const DopWorkTable = () => {
     setHighlightedId(null);
   };
 
-  /*########### Фильтр по колонкам END #############*/
-
-  /*############## Фильтры и поиск #################*/
-
-  // Добавляем состояния
   const [sortField, setSortField] = useState(localStorage.getItem('dopSortField') || 'createdAt');
   const [sortOrder, setSortOrder] = useState(localStorage.getItem('dopSortOrder') || 'desc');
   const [searchTerm, setSearchTerm] = useState(localStorage.getItem('dopSearchTerm') || '');
   const [highlightedId, setHighlightedId] = useState(null);
 
-  // Сохраняем в localStorage
   useEffect(() => {
     localStorage.setItem('dopSortField', sortField);
     localStorage.setItem('dopSortOrder', sortOrder);
     localStorage.setItem('dopSearchTerm', searchTerm);
   }, [sortField, sortOrder, searchTerm]);
 
-  // Функция сортировки
   const sortedData = [...reglist].sort((a, b) => {
     let aValue = a[sortField];
     let bValue = b[sortField];
     
-    // Для всех полей с датами используем Date объект
     if (sortField === 'date' || sortField === 'createdAt' || sortField === 'reportPeriods') {
       aValue = new Date(aValue || 0);
       bValue = new Date(bValue || 0);
     }
     
-    // Для числовых полей преобразуем в числа
     if (['point', 'recommen', 'errors', 'critic', 'pointsRemove', 'iteration', 'dispute'].includes(sortField)) {
       aValue = Number(aValue) || 0;
       bValue = Number(bValue) || 0;
@@ -138,14 +482,17 @@ const DopWorkTable = () => {
     return 0;
   });
 
-  // Функция поиска - ТЕПЕРЬ applyColumnFilters доступна
-  const filteredData = applyColumnFilters(sortedData).filter(item => 
-    searchTerm ? Object.values(item).some(value => 
-      value && value.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    ) : true
+  const filteredData = applyColumnFilters(sortedData)
+    .filter(item => 
+      searchTerm ? Object.values(item).some(value => 
+        value && value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+      ) : true
+    )
+    .filter(item => 
+      showOnlyFavorites ? favorites.has(item.id) : true // Добавь эту строку
   );
+  
 
-  // Обработчики
   const handleSort = (field) => {
     if (sortField === field) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -157,7 +504,6 @@ const DopWorkTable = () => {
 
   const handleSearch = (term) => {
     setSearchTerm(term);
-    // Находим первый подходящий результат для подсветки в уже отфильтрованных данных
     const dataToSearch = applyColumnFilters(sortedData);
     const foundItem = dataToSearch.find(item => 
       Object.values(item).some(value => 
@@ -188,22 +534,17 @@ const DopWorkTable = () => {
     }
   }, [highlightedId, filteredData]);
 
-  /*############## Фильтры и поиск END ###############*/
-
-  // Форматирование даты
   const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
-    return date.toLocaleDateString('ru-RU')
+    return date.toLocaleDateString('ru-RU');
   };
 
-  // Обрезка длинного текста
   const truncateText = (text, maxLength = 50) => {
     if (!text) return '';
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };
 
-  // Проверка валидности URL
   const isValidUrl = (string) => {
     try {
       new URL(string);
@@ -213,63 +554,296 @@ const DopWorkTable = () => {
     }
   };
 
-  return (
-    <div className="table__container">
-      <Link to="/qa-form">Форма</Link>
-      <h1>Таблица дополнительных работ</h1>
+  const renderCellContent = (item, column) => {
+    // Обработка колонки избранного
+    if (column.key === 'favorite') {
+      return (
+        <button 
+          onClick={(e) => {
+            e.stopPropagation(); // Предотвращаем всплытие клика на строку
+            toggleFavorite(item.id);
+          }}
+          className={`favorite-star-btn ${favorites.has(item.id) ? 'favorite-active' : ''}`}
+          title={favorites.has(item.id) ? "Удалить из избранного" : "Добавить в избранное"}
+        >
+          {favorites.has(item.id) ? '⭐' : '☆'}
+        </button>
+      );
+    }
 
-    <div className="controls">
-      <div className="search-section">
+    if (isEditing && editItem?.id === item.id) {
+      if (['amount', 'typeWork', 'typeTest'].includes(column.key)) {
+        return (
+          <>
+            <input
+              type="text"
+              value={editFormData[column.key] || ''}
+              onChange={(e) => handleInputChange(column.key, e.target.value)}
+              className="edit-input"
+              list={`edit-${column.key}-list`}
+              placeholder={`Выберите ${column.label.toLowerCase()}`}
+            />
+            <datalist id={`edit-${column.key}-list`}>
+              {column.key === 'amount' && (
+                <>
+                  <option value="1-2" />
+                  <option value="3-5" />
+                  <option value="6 и более" />
+                </>
+              )}
+              {column.key === 'typeWork' && (
+                <>
+                  <option value="Типовая" />
+                  <option value="Не типовая" />
+                  <option value="Средняя" />
+                </>
+              )}
+              {column.key === 'typeTest' && (
+                <>
+                  <option value="Первая" />
+                  <option value="Итерация" />
+                  <option value="Наша ошибка" />
+                </>
+              )}
+            </datalist>
+          </>
+        );
+      }
+  
+      return (
         <input
           type="text"
-          placeholder="Глобальный поиск по всем полям..."
-          value={searchTerm}
-          onChange={(e) => handleSearch(e.target.value)}
-          className="search-input"
+          value={editFormData[column.key] || ''}
+          onChange={(e) => handleInputChange(column.key, e.target.value)}
+          className="edit-input"
+          placeholder={`Введите ${column.label.toLowerCase()}`}
         />
-        {searchTerm && (
-          <button onClick={resetSearch} className="reset-btn">
-            ✕
-          </button>
-        )}
-      </div>
+      );
+  }
+
+    if (column.key === 'date') {
+      return formatDate(item[column.key]);
+    } else if ((column.key === 'reglament' || column.key === 'linkReport') && isValidUrl(item[column.key])) {
+      return (
+        <a href={item[column.key]} target="_blank" rel="noopener noreferrer" className="link">
+          {truncateText(item[column.key], 30)}
+        </a>
+      );
+    } else if (column.key === 'counting' || column.key === 'commentError') {
+      return truncateText(item[column.key], 30);
+    } else {
+      return item[column.key] || '0';
+    }
+  };
+
+  // Функция проверки избранного
+  const checkIsFavorite = async (dopId) => {
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/favorites/check/${dopId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       
-      <div className="sort-section">
-        <select 
-          value={sortField} 
-          onChange={(e) => handleSort(e.target.value)}
-          className="sort-select"
-        >
-          {columns.map(col => (
-            <option key={col.key} value={col.key}>{col.label}</option>
-          ))}
-        </select>
+      if (res.ok) {
+        const data = await res.json();
+        return data.isFavorite;
+      }
+      return false;
+    } catch (error) {
+      console.error("Ошибка проверки избранного:", error);
+      return false;
+    }
+  };
+
+    // Функция загрузки избранного при монтировании
+    useEffect(() => {
+      if (token && user) {
+        loadFavorites();
+      }
+    }, [token, user]);
+
+    const loadFavorites = async () => {
+      try {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/favorites`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    
+    if (res.ok) {
+      const data = await res.json();
+      const favoriteIds = new Set(data.map(item => item.id));
+      setFavorites(favoriteIds);
+    }
+  } catch (error) {
+    console.error("Ошибка загрузки избранного:", error);
+  }
+};
+
+// Функция добавления/удаления из избранного
+const toggleFavorite = async (dopId) => {
+  try {
+    const isCurrentlyFavorite = favorites.has(dopId);
+    
+    if (isCurrentlyFavorite) {
+      // Удаляем из избранного - ИСПРАВЬ ENDPOINT
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/favorites/remove/${dopId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      if (res.ok) {
+        setFavorites(prev => {
+          const newFavorites = new Set(prev);
+          newFavorites.delete(dopId);
+          return newFavorites;
+        });
+      }
+    } else {
+        // Добавляем в избранное - ИСПРАВЬ ENDPOINT
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/favorites/add/${dopId}`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         
-        <button 
-          onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-          className="sort-order-btn"
-        >
-          {sortOrder === 'asc' ? '↑' : '↓'}
-        </button>
-        
-        <button onClick={resetSort} className="reset-btn">
-          Сбросить сортировку
-        </button>
-        
-        {(searchTerm || Object.keys(columnFilters).length > 0) && (
-          <button onClick={clearAllFilters} className="reset-btn reset-all-btn">
-            Сбросить все фильтры
-          </button>
+        if (res.ok) {
+          setFavorites(prev => new Set(prev).add(dopId));
+        } else if (res.status === 400) {
+          alert("Уже в избранном");
+        }
+      }
+    } catch (error) {
+      console.error("Ошибка работы с избранным:", error);
+    }
+  };
+
+  return (
+    <div className="table__container">
+      <div className="table-header">
+        <Link to="/qa-form" className="form-link">Форма</Link>
+        <h1>Таблица дополнительных работ</h1>
+        {isEditing && (
+          <div className="edit-notice">
+            ⚠️ Режим редактирования. Редактируете запись ID: {editItem?.id}
+          </div>
         )}
       </div>
-    </div>
+
+      <div className="controls">
+        <div className="search-section">
+          <input
+            type="text"
+            placeholder="Глобальный поиск по всем полям..."
+            value={searchTerm}
+            onChange={(e) => handleSearch(e.target.value)}
+            className="search-input"
+          />
+          {searchTerm && (
+            <button onClick={resetSearch} className="reset-btn">
+              ✕
+            </button>
+          )}
+        </div>
+        
+        <div className="sort-section">
+              <label className="favorites-filter">
+                <input
+                  type="checkbox"
+                  checked={showOnlyFavorites}
+                  onChange={(e) => setShowOnlyFavorites(e.target.checked)}
+                />
+                <span className="favorites-filter-label">
+                  {showOnlyFavorites ? '⭐' : '☆'}
+                </span>
+              </label>
+          <select 
+            value={sortField} 
+            onChange={(e) => handleSort(e.target.value)}
+            className="sort-select"
+          >
+            {columns.map(col => (
+              <option key={col.key} value={col.key}>{col.label}</option>
+            ))}
+          </select>
+          
+          <button 
+            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+            className="sort-order-btn"
+          >
+            {sortOrder === 'asc' ? '↑' : '↓'}
+          </button>
+          
+          <button onClick={resetSort} className="reset-btn">
+            Сбросить сортировку
+          </button>
+
+          {/* Новая кнопка скачивания CSV */}
+          <div className="csv-download-section">
+            <button 
+              onClick={toggleDatePicker} 
+              className="csv-download-btn"
+              title="Скачать CSV отчет"
+            >
+              📊 Скачать CSV
+            </button>
+            
+            {showDatePicker && (
+              <div className="date-picker-modal">
+                <div className="date-picker-content">
+                  <h3>Выберите дату для отчета</h3>
+                  <select 
+                    value={selectedDate} 
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    className="date-select"
+                  >
+                    <option value="">Выберите дату...</option>
+                    {availableDates.map(date => (
+                      <option key={date} value={date}>
+                        {new Date(date).toLocaleDateString('ru-RU')}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="date-picker-actions">
+                    <button 
+                      onClick={downloadCSV} 
+                      className="confirm-download-btn"
+                      disabled={!selectedDate}
+                    >
+                      📥 Скачать
+                    </button>
+                    <button 
+                      onClick={() => setShowDatePicker(false)} 
+                      className="cancel-download-btn"
+                    >
+                      Отмена
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {(searchTerm || Object.keys(columnFilters).length > 0) && (
+            <button onClick={clearAllFilters} className="reset-btn reset-all-btn">
+              Сбросить все фильтры
+            </button>
+          )}
+        </div>
+      </div>
       
       {/* Заголовки колонок с фильтрами */}
       <div className="table-header-row">
         {columns.map(column => (
           <div 
             key={column.key} 
-            // className="header-cell"
             className={`header-cell ${columnFilters[column.key] ? 'active-filter' : ''}`}
             style={{ width: column.width }}
           >
@@ -295,7 +869,6 @@ const DopWorkTable = () => {
               </div>
             </div>
             
-            {/* Datalist для подсказок */}
             <datalist id={`datalist-${column.key}`}>
               {[...new Set(reglist.map(item => item[column.key]))]
                 .filter(value => value)
@@ -312,7 +885,10 @@ const DopWorkTable = () => {
         {filteredData.map((item) => ( 
           <div 
             key={item.id} 
-            className={`table-row ${highlightedId === item.id ? 'highlighted' : ''}`}
+            className={`table-row ${highlightedId === item.id ? 'highlighted' : ''} ${
+              isEditing && editItem?.id === item.id ? 'editing' : ''
+            } ${selectedRow === item.id ? 'selected' : ''}`}
+            onClick={(e) => handleRowClick(item, e)}
           >
             {columns.map(column => (
               <div 
@@ -321,26 +897,83 @@ const DopWorkTable = () => {
                 style={{ width: column.width }}
                 title={item[column.key]}
               >
-                {column.key === 'date' ? (
-                  formatDate(item[column.key])
-                ) : column.key === 'reglament' && isValidUrl(item[column.key]) ? (
-                  <a href={item[column.key]} target="_blank" rel="noopener noreferrer" className="link">
-                    {truncateText(item[column.key], 30)}
-                  </a>
-                ) : column.key === 'linkReport' && isValidUrl(item[column.key]) ? (
-                  <a href={item[column.key]} target="_blank" rel="noopener noreferrer" className="link">
-                    {truncateText(item[column.key], 25)}
-                  </a>
-                ) : column.key === 'counting' || column.key === 'commentError' ? (
-                  truncateText(item[column.key], 30)
-                ) : (
-                  item[column.key] || '0'
-                )}
+                {renderCellContent(item, column)}
               </div>
             ))}
           </div>
         ))}
       </div>
+
+      {/* Плавающие кнопки действий при клике */}
+      {selectedRow && !isEditing && (
+        <div 
+          className={`floating-actions ${isDragging ? 'dragging' : ''}`}
+          style={{
+            left: clickPosition.x,
+            top: clickPosition.y,
+            cursor: isDragging ? 'grabbing' : 'grab'
+          }}
+          onMouseDown={handleMouseDown}
+        >
+          <div className="floating-actions-header">
+            <span>Действия {isDragging && '⤴'}</span>
+            <button 
+              onClick={() => setSelectedRow(null)}
+              className="close-actions-btn"
+              title="Закрыть"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="floating-actions-buttons">
+            <button 
+              onClick={() => handleEdit(filteredData.find(item => item.id === selectedRow))} 
+              className="floating-btn floating-edit"
+              title="Редактировать"
+            >
+              ✏️ Редактировать
+            </button>
+                <button 
+                onClick={() => toggleFavorite(selectedRow)} 
+                className={`floating-btn ${favorites.has(selectedRow) ? 'favorite-remove' : 'favorite-add'}`}
+                title={favorites.has(selectedRow) ? "Удалить из избранного" : "Добавить в избранное"}
+              >
+                {favorites.has(selectedRow) ? '⭐ Удалить из избранного' : '☆ Добавить в избранное'}
+              </button>
+            <button 
+              onClick={() => handleDelete(selectedRow)} 
+              className="floating-btn floating-delete"
+              title="Удалить"
+            >
+              🗑️ Удалить
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Кнопки действий при редактировании */}
+      {isEditing && (
+        <div 
+          className="floating-actions editing-actions"
+          style={{
+            left: '50%',
+            top: '100px',
+            transform: 'translateX(-50%)',
+          }}
+        >
+          <div className="floating-actions-header">
+            <span>Редактирование записи ID: {editItem?.id}</span>
+          </div>
+          <div className="floating-actions-buttons">
+            <button onClick={handleSaveEdit} className="floating-btn floating-save" title="Сохранить">
+              💾 Сохранить
+            </button>
+            <button onClick={cancelEdit} className="floating-btn floating-cancel" title="Отменить">
+              ❌ Отменить
+            </button>
+          </div>
+        </div>
+      )}
 
       {filteredData.length === 0 && (
         <div className="empty-state">
@@ -348,7 +981,7 @@ const DopWorkTable = () => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
 export default DopWorkTable;

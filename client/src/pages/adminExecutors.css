@@ -1,0 +1,15 @@
+.admin-executors{
+  display: flex;
+  justify-content: space-between;
+  max-width: 1366px;
+  margin: 0 auto;
+}
+.executor-card{
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.executor-info{
+  display: flex;
+  gap: 15px;
+}

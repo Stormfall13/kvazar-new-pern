@@ -8,8 +8,10 @@ const Register = lazy(() => import("./pages/Register"));
 const Home = lazy(() => import("./pages/Home"));
 const UserPage = lazy(() => import("./pages/UserPage"));
 const AdminPage = lazy(() => import("./pages/AdminPage"));
-const GalleryPage = lazy(() => import("./pages/GalleryPage"));
 const AdmimAllUsersPage = lazy(() => import("./pages/AdminAllUsersPage"));
+const AdminExecutorPage = lazy(() => import("./pages/AdminExecutorPage"));
+const DatePeriodsPage = lazy(() => import("./pages/DatePeriodsPage"));
+const Favorites = lazy(() => import('./pages/Favorites'));
 const QaPage = lazy(() => import("./pages/QaPage"));
 const QaForm = lazy(() => import("./pages/QaForm"));
 
@@ -32,7 +34,7 @@ const AppRouter = () => {
                     <Route path="/user" element={ <ProtectedRoute allowedRoles={["user", "admin"]}> <UserPage /> </ProtectedRoute> } />
                     <Route path="/all-users" element={<ProtectedRoute allowedRoles={["admin"]}><AdmimAllUsersPage /></ProtectedRoute>} />
                     <Route path="/admin" element={ <ProtectedRoute allowedRoles={["admin"]}> <AdminPage /> </ProtectedRoute> } />
-                    <Route path="/gallery" element={ <ProtectedRoute allowedRoles={["admin"]}> <GalleryPage /> </ProtectedRoute> } />
+                    <Route path="/executors" element={ <ProtectedRoute allowedRoles={["admin"]}> <AdminExecutorPage /> </ProtectedRoute> } />
 
                     {/* Если страница не найдена — редирект на `/` */}
                     <Route path="*" element={<Navigate to="/" />} />
@@ -42,7 +44,9 @@ const AppRouter = () => {
                     <Route path="/qa-page" element={<ProtectedRoute allowedRoles={["admin", "user"]}> <QaPage /> </ProtectedRoute> } />
                     <Route path="/dop-work" element={<ProtectedRoute allowedRoles={["admin", "user"]}> <DopWorkTable /> </ProtectedRoute> } />
                     <Route path="/qa-form" element={<ProtectedRoute allowedRoles={["admin", "user"]}> <QaForm /> </ProtectedRoute> } />
-                
+                    <Route path="/favorites" element={<ProtectedRoute allowedRoles={["admin", "user"]}> <Favorites /> </ProtectedRoute> } />
+                    <Route path="/date-periods" element={<ProtectedRoute allowedRoles={["admin", "user"]}> <DatePeriodsPage /> </ProtectedRoute> } />
+                    
                 </Routes>
             </Suspense>
         </Router>
